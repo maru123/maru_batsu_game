@@ -7,8 +7,6 @@ var MaruBatsu = function(){
 MaruBatsu.prototype.reset = function(lengthOfSide){
   //reset
   this.squares = [];
-  this.BreakableLeftDiagonal = [];
-  this.BreakableRightDiagonal = [];
 
   //1辺の方眼の数
   this.lengthOfSide = lengthOfSide;
@@ -19,21 +17,29 @@ MaruBatsu.prototype.reset = function(lengthOfSide){
       this.squares.push(new Square(j,i));
     }
   }
-  //対角線の列行を作成
-  for (var i = 1 , j = this.lengthOfSide.length ; i <= this.lengthOfSide ; i++,j--){
-    this.BreakableLeftDiagonal.push({i,i});
-    this.BreakableRightDiagonal.push({i,j});
-  }
   //Playerをエントリー
   this.maru = new Player();
   this.batsu = new Player();
 };
 MaruBatsu.prototype.selectSquare = function(row,column){
+  //選ばれたマスを選択不可にする
+  for( var i = 0; i < this.squares.length ; i++){
+    if (this.squares[i].row === row && this.squares[i].column === column){
+      if(this.squares[i].isAvailable === true) {
+        this.squares[i].isAvailable = false;
+      }else{
+       console.log('already choosed!');
+       return false;
+      };
+    };
+  };
   if (this.myTurn === "batsu"){
+    //batsu
     this.batsu.storedRowColumn(row,column);
     this.myTurn = "maru"
     if (this.batsu.rows.length > 2) return this.isBreake(this.batsu);
   }else{
+    //maru
     this.maru.storedRowColumn(row,column);
     this.myTurn = "batsu"
     if (this.maru.rows.length > 2) return this.isBreake(this.maru);
@@ -88,7 +94,6 @@ MaruBatsu.prototype.isBreake = function(player){
       return true
     };
   }
-
 };
 // -------------------------------
 //Square
@@ -104,11 +109,9 @@ var Square = function(row,column){
 var Player = function(){
   this.rows = [];
   this.columns = [];
-  this.rowsColumns = [];
 };
 //自分の陣地を覚える(選ばれた方眼の位置を取得する)
 Player.prototype.storedRowColumn = function(row,column){
   this.rows.push(row);
   this.columns.push(column);
-  this.rowsColumns.push({row,column});
 };
