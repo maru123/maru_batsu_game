@@ -3,13 +3,20 @@
   <head>
     <meta charset="utf-8">
     <title>MaruBatsuGame</title>
-    <link rel="stylesheet" href="./marubatsu_game.css"   type="text/css"charset="utf-8">
+    <link rel="stylesheet" href="./maru_batsu_game.css"   type="text/css"charset="utf-8">
   </head>
   <body>
     <h1>MaruBatsuGame</h1>
-    <script type="text/javascript" src="./marubatsu_game.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./maru_batsu_game.js" charset="utf-8"></script>
     <script type="text/javascript">
-
+      var maruBatsu = new MaruBatsu();
+      maruBatsu.reset(3);
+      maruBatsu.selectSquare(1,3);//batsu
+      maruBatsu.selectSquare(2,1);//maru
+      maruBatsu.selectSquare(2,2);//batsu
+      maruBatsu.selectSquare(2,3);//maru
+      maruBatsu.selectSquare(3,1);//batsu
+    //  maruBatsu.selectSquare(2,3);//maru
     </script>
   </body>
 </html>
