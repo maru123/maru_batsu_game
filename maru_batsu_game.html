@@ -9,9 +9,7 @@
       padding: 10px;
       font-size: 70px;
     }
-    td { text-align: center; }
-    th { width: 105px;}
-
+    th { width: 105px; text-align: center; }
     </style>
   </head>
   <body>
@@ -48,6 +46,7 @@
       this.inputBatsuName = document.getElementById('batsu-name');
       this.table = document.getElementById('table');
       this.addEvent();
+      this.breaked = false;
       this.game = new MaruBatsu();
     };
     GameComponent.prototype.set = function () {
@@ -57,7 +56,7 @@
         alert("Please fill in Player's name. Need length at least 1 characters!!");
         return false;
       }
-
+      //tableを初期化
       for (var row = 1 ; row <= lengthOfSide ; row++){
         for (var column = 1 ; column <= lengthOfSide ; column++){
           var id = row.toString() + column.toString();
@@ -68,7 +67,7 @@
           }
         }
       }
-
+      this.breaked = false;
       this.table.style.visibility = "visible";
       this.game.reset(lengthOfSide);
       this.game.entry(this.inputMaruName.value,this.inputBatsuName.value);
@@ -82,9 +81,9 @@
         this.obj.innerHTML = '◯';
       };
       this.obj.style.backgroundColor='#cccccc';
-
       if (this.game.isBreake()) {
         alert('Congratulaition!! Winner is ' + this.game.winner);
+        this.breaked = true;
       }
     }
     GameComponent.prototype.addEvent = function(){
@@ -92,9 +91,10 @@
     };
     var gameComponent = new GameComponent();
     function Click_Sub(obj) {
+      if ( gameComponent.breaked === false ){
         gameComponent.isBreake(obj.id);
+      }
     }
-
     </script>
   </body>
 </html>
