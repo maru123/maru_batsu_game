@@ -75,7 +75,7 @@
     GameComponent.prototype.isBreake = function (id) {
       this.obj = document.getElementById(id);
       if (this.obj.innerHTML != '?' ){return false;};
-      if (this.game.turn(id)){
+      if (this.game.toNextPlayer(id)){
         this.obj.innerHTML = '×';
       }else{
         this.obj.innerHTML = '◯';

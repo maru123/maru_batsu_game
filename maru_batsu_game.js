@@ -5,62 +5,39 @@ var MaruBatsu = function(){};
 MaruBatsu.prototype.entry = function(maruPlayerName,batsuPlayerName){
   this.maruPlayer = maruPlayerName;
   this.batsuPlayer = batsuPlayerName;
-  this.myTurn = this.maruPlayer;
+  this.nextPlayer = this.maruPlayer;
 };
-MaruBatsu.prototype.turn = function(key){
-  this.squares[key] = this.myTurn;
-  if (this.myTurn === this.batsuPlayer) {
-    this.myTurn = this.maruPlayer;
+MaruBatsu.prototype.toNextPlayer = function(key){
+  this.cells[key] = this.nextPlayer;
+  if (this.nextPlayer === this.batsuPlayer) {
+    this.nextPlayer = this.maruPlayer;
     return true;
   } else {
-    this.myTurn = this.batsuPlayer;
+    this.nextPlayer = this.batsuPlayer;
     return false;
   }
 };
-MaruBatsu.prototype.reset = function(lengthOfSide){
+MaruBatsu.prototype.reset = function(length){
   //reset
-  this.squares = {};
+  this.cells = {};
   this.breakableLines = [];
   this.winner = "";
-
   //1辺の方眼の数
-  this.lengthOfSide = lengthOfSide;
-
+  this.length = length;
   //方眼の列と行を作成
-  for (var row = 1 ; row <= this.lengthOfSide ; row++){
-    for (var column = 1 ; column <= this.lengthOfSide ; column++){
-      this.squares[row.toString() + column.toString()] = null;
-    }
-  }
-
+  this.makeCells();
   //勝ちkeyの組み合わせを作成
   //行列
-  for (var row = 1 ; row <= this.lengthOfSide ; row++){
-    rowLines = [];
-    columnLines = [];
-    for (var column = 1 ; column <= this.lengthOfSide ; column++){
-      rowLines.push(row.toString() + column.toString());
-      columnLines.push(column.toString() + row.toString());
-    }
-    this.breakableLines.push(rowLines);
-    this.breakableLines.push(columnLines);
-  }
+  this.rowColumnLines();
   //斜め
-  LeftDiagonalLine = [];
-  RightDiagonalLine = [];
-  for (var row = 1 , column = this.lengthOfSide; row <= this.lengthOfSide ; row++,column--){
-    RightDiagonalLine.push(row.toString() + column.toString())
-    LeftDiagonalLine.push(row.toString() + row.toString())
-  }
-  this.breakableLines.push(RightDiagonalLine);
-  this.breakableLines.push(LeftDiagonalLine);
+  this.crossLines();
 };
 MaruBatsu.prototype.isBreake = function(){
   //勝ちkeyの組み合わせ毎にvalueの配列を取得
   for (var i = 0 ; i < this.breakableLines.length ; i++){
     var arr = [], name ;
-    for (var j = 0 ; j < this.lengthOfSide ; j++){
-      arr.push(this.squares[this.breakableLines[i][j]]);
+    for (var j = 0 ; j < this.length ; j++){
+      arr.push(this.cells[this.breakableLines[i][j]]);
     }
     //配列の重複を削除
     name = arr.filter(function (x, i, self) {return self.indexOf(x) === i;});
@@ -72,3 +49,33 @@ MaruBatsu.prototype.isBreake = function(){
   }
   return false;
 };
+//private
+MaruBatsu.prototype.rowColumnLines = function () {
+  for (var row = 1 ; row <= this.length ; row++){
+    rowLines = [];
+    columnLines = [];
+    for (var column = 1 ; column <= this.length ; column++){
+      rowLines.push(row.toString() + column.toString());
+      columnLines.push(column.toString() + row.toString());
+    }
+    this.breakableLines.push(rowLines);
+    this.breakableLines.push(columnLines);
+  }
+}
+MaruBatsu.prototype.crossLines = function (){
+  leftDiagonalLine = [];
+  rightDiagonalLine = [];
+  for (var row = 1 , column = this.length; row <= this.length ; row++,column--){
+    rightDiagonalLine.push(row.toString() + column.toString())
+    leftDiagonalLine.push(row.toString() + row.toString())
+  }
+  this.breakableLines.push(rightDiagonalLine);
+  this.breakableLines.push(leftDiagonalLine);
+}
+MaruBatsu.prototype.makeCells = function () {
+  for (var row = 1 ; row <= this.length ; row++){
+    for (var column = 1 ; column <= this.length ; column++){
+      this.cells[row.toString() + column.toString()] = null;
+    }
+  }
+}
