@@ -3,37 +3,98 @@
   <head>
     <meta charset="utf-8">
     <title>MaruBatsuGame</title>
-    <link rel="stylesheet" href="./maru_batsu_game.css"   type="text/css"charset="utf-8">
+    <style type="text/css">
+    table{
+      margin: 10px;
+      padding: 10px;
+      font-size: 70px;
+    }
+    td { text-align: center; }
+    th { width: 105px;}
+
+    </style>
   </head>
   <body>
     <h1>MaruBatsuGame</h1>
+    <div class="entry">
+      <span>maru-player</span><input id="maru-name" type="text"  value="">
+      <span>batsu-player</span><input id="batsu-name" type="text" value="">
+      <button id="set">SET</button>
+    </div>
     <div class="square">
-      <div id="row1">
-        <span id="column1"></span>
-        <span id="column2"></span>
-        <span id="column3"></span>
-      </div>
-      <div id="row2">
-        <span id="column1"></span>
-        <span id="column2"></span>
-        <span id="column3"></span>
-      </div>
-      <div id="row3">
-        <span id="column1"></span>
-        <span id="column2"></span>
-        <span id="column3"></span>
-      </div>
+      <table id="table" border="1" style="visibility:hidden;">
+        <tr>
+          <th id="11" onclick="Click_Sub(this)">?</th>
+          <th id="12" onclick="Click_Sub(this)">?</th>
+          <th id="13" onclick="Click_Sub(this)">?</th>
+        </tr>
+        <tr>
+          <th id="21" onclick="Click_Sub(this)">?</th>
+          <th id="22" onclick="Click_Sub(this)">?</th>
+          <th id="23" onclick="Click_Sub(this)">?</th>
+       </tr>
+       <tr>
+         <th id="31" onclick="Click_Sub(this)">?</th>
+         <th id="32" onclick="Click_Sub(this)">?</th>
+         <th id="33" onclick="Click_Sub(this)">?</th>
+       </tr>
+      </table>
     </div>
     <script type="text/javascript" src="./maru_batsu_game.js" charset="utf-8"></script>
     <script type="text/javascript">
-      var maruBatsu = new MaruBatsu();
-      maruBatsu.reset(3);
-      maruBatsu.selectSquare(1,1);//batsu
-      maruBatsu.selectSquare(1,3);//maru
-      maruBatsu.selectSquare(2,2);//batsu
-      maruBatsu.selectSquare(2,3);//maru
-      maruBatsu.selectSquare(3,3);//batsu
-      maruBatsu.selectSquare(1,2);//maru
+    var GameComponent = function(){
+      this.setBtn = document.getElementById('set');
+      this.inputMaruName = document.getElementById('maru-name');
+      this.inputBatsuName = document.getElementById('batsu-name');
+      this.table = document.getElementById('table');
+      this.addEvent();
+      this.game = new MaruBatsu();
+    };
+    GameComponent.prototype.set = function () {
+      var lengthOfSide = 3;
+      this.table.style.visibility = "hidden";
+      if (this.inputMaruName.value.length < 1 || this.inputBatsuName.value.length < 1 ) {
+        alert("Please fill in Player's name. Need length at least 1 characters!!");
+        return false;
+      }
+
+      for (var row = 1 ; row <= lengthOfSide ; row++){
+        for (var column = 1 ; column <= lengthOfSide ; column++){
+          var id = row.toString() + column.toString();
+          this.obj = document.getElementById(id);
+          if (this.obj.innerHTML != '?') {
+            this.obj.innerHTML = '?';
+            this.obj.style.backgroundColor='#ffffff';
+          }
+        }
+      }
+
+      this.table.style.visibility = "visible";
+      this.game.reset(lengthOfSide);
+      this.game.entry(this.inputMaruName.value,this.inputBatsuName.value);
+    };
+    GameComponent.prototype.isBreake = function (id) {
+      this.obj = document.getElementById(id);
+      if (this.obj.innerHTML != '?' ){return false;};
+      if (this.game.turn(id)){
+        this.obj.innerHTML = '×';
+      }else{
+        this.obj.innerHTML = '◯';
+      };
+      this.obj.style.backgroundColor='#cccccc';
+
+      if (this.game.isBreake()) {
+        alert('Congratulaition!! Winner is ' + this.game.winner);
+      }
+    }
+    GameComponent.prototype.addEvent = function(){
+      this.setBtn.addEventListener('click', this.set.bind(this));
+    };
+    var gameComponent = new GameComponent();
+    function Click_Sub(obj) {
+        gameComponent.isBreake(obj.id);
+    }
+
     </script>
   </body>
 </html>

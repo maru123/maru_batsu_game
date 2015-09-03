@@ -1,117 +1,82 @@
 //-------------------------------
 //MaruBatsu
 //-------------------------------
-var MaruBatsu = function(){
-  this.myTurn = "batsu";
+var MaruBatsu = function(){};
+MaruBatsu.prototype.entry = function(maruPlayerName,batsuPlayerName){
+  this.maruPlayer = maruPlayerName;
+  this.batsuPlayer = batsuPlayerName;
+  this.myTurn = this.maruPlayer;
+};
+MaruBatsu.prototype.turn = function(key){
+  this.squares[key] = this.myTurn;
+  if (this.myTurn === this.batsuPlayer) {
+    this.myTurn = this.maruPlayer;
+    return true;
+  } else {
+    this.myTurn = this.batsuPlayer;
+    return false;
+  }
 };
 MaruBatsu.prototype.reset = function(lengthOfSide){
   //reset
-  this.squares = [];
+  this.squares = {};
+  this.breakableLines = [];
+  this.winner = "";
 
   //1辺の方眼の数
-  this.lengthOfSide = lengthOfSide;
+  lengthOfSide;
 
   //方眼の列と行を作成
-  for (var i = 1 ; i <= this.lengthOfSide ; i++){
-    for (var j = 1 ; j <= this.lengthOfSide ; j++){
-      this.squares.push(new Square(j,i));
+  for (var row = 1 ; row <= this.lengthOfSide ; row++){
+    for (var column = 1 ; column <= this.lengthOfSide ; column++){
+      this.squares[row.toString() + column.toString()] = null;
     }
   }
-  //Playerをエントリー
-  this.maru = new Player();
-  this.batsu = new Player();
-};
-MaruBatsu.prototype.selectSquare = function(row,column){
-  //選ばれたマスを選択不可にする
-  for( var i = 0; i < this.squares.length ; i++){
-    if (this.squares[i].row === row && this.squares[i].column === column){
-      if(this.squares[i].isAvailable === true) {
-        this.squares[i].isAvailable = false;
-      }else{
-       console.log('already choosed!');
-       return false;
-      };
-    };
-  };
-  if (this.myTurn === "batsu"){
-    //batsu
-    this.batsu.storedRowColumn(row,column);
-    this.myTurn = "maru"
-    if (this.batsu.rows.length > 2) return this.isBreake(this.batsu);
-  }else{
-    //maru
-    this.maru.storedRowColumn(row,column);
-    this.myTurn = "batsu"
-    if (this.maru.rows.length > 2) return this.isBreake(this.maru);
-  };
-};
-MaruBatsu.prototype.isBreake = function(player){
-  console.log(player)
-  //列が揃ったか
-  console.log('---------------------rows')
-  for (var i = 1 ; i <= this.lengthOfSide; i++){
-    var count = 0;
-    for (var j = 0; j < player.rows.length; j++){
-      if (player.rows[j] === i) count++;
+
+  //勝ちkeyの組み合わせを作成
+  LeftDiagonalLine = [];
+  RightDiagonalLine = [];
+
+  for (var row = 1 ; row <= lengthOfSide ; row++){
+
+    rowLines = [];
+    columnLines = [];
+
+    for (var column = 1 ; column <= lengthOfSide ; column++){
+      rowLines.push(row.toString() + column.toString());
+      columnLines.push(column.toString() + row.toString());
     }
-    if (count >= 3) {
-      console.log('win!')
+    //rows
+    this.breakableLines.push(rowLines);
+    //columns
+    this.breakableLines.push(columnLines);
+    //LeftDiagonal
+    LeftDiagonalLine.push(row.toString() + row.toString())
+  }
+
+  this.breakableLines.push(LeftDiagonalLine);
+
+  //RightDiagonal
+  for (var row = 1 , column = lengthOfSide; row <= lengthOfSide ; row++,column--){
+    RightDiagonalLine.push(row.toString() + column.toString())
+  }
+  this.breakableLines.push(RightDiagonalLine);
+
+  //debug
+  return this.squares;
+};
+MaruBatsu.prototype.isBreake = function(){
+
+  for (var i = 0 ; i < this.breakableLines.length ; i++){
+    var arr = [], name ;
+    for (var j = 0 ; j < 3 ; j++){
+      arr.push(this.squares[this.breakableLines[i][j]]);
+    }
+    name = arr.filter(function (x, i, self) {return self.indexOf(x) === i;});
+    if (name.length === 1 && name[0] != null) {
+      this.winner = name[0];
       return true;
-    };
-  }
-  //行が揃ったか
-  console.log('---------------------columns')
-  for (var i = 1 ; i <= this.lengthOfSide; i++){
-    var count = 0;
-    for (var j = 0; j < player.columns.length; j++){
-      if (player.columns[j] === i) count++;
     }
-    if (count >= 3) {
-      console.log('win!')
-      return true;
-    };
   }
-  //対角線が揃ったか
-  console.log('---------------------LeftDiagonal')
-  var count = 0;
-  for (var i = 1 ; i <= this.lengthOfSide; i++){
-    for (var j = 0; j < player.columns.length; j++){
-      if (player.rows[j] === i && player.columns[j] === i ) count++;
-    }
-    if (count >= 3) {
-      console.log('win!')
-      return true;
-    };
-  }
-  console.log('---------------------RightDiagonal')
-  var count = 0;
-  for (var i = 1 ; i <= this.lengthOfSide; i++){
-    for (var j = 0; j < player.columns.length; j++){
-      if (player.rows[j] === i && player.columns[j] === this.lengthOfSide-j ) count++;
-    }
-    if (count >= 3) {
-      console.log('win!')
-      return true
-    };
-  }
-};
-// -------------------------------
-//Square
-// -------------------------------
-var Square = function(row,column){
-  this.isAvailable = true
-  this.row = row;
-  this.column = column;
-};
-// -------------------------------
-//Player
-// -------------------------------
-var Player = function(){
-  this.rows = [];
-  this.columns = [];
-};
-//自分の陣地を覚える(選ばれた方眼の位置を取得する)
-Player.prototype.storedRowColumn = function(row,column){
-  this.rows.push(row);
-  this.columns.push(column);
+  return false;
 };
